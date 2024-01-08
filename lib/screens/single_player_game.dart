@@ -31,17 +31,18 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
   @override
   void initState() {
     super.initState();
-    _startCountdown();
+    _startCountdown(); // Start the initial countdown when the widget is created
   }
 
   @override
   void dispose() {
-    countdownTimer?.cancel(); // cancel the timer to avoid calling setState after dispose
+    countdownTimer?.cancel(); // Cancel the timer to avoid calling setState after dispose
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Determine the size of the grid based on the screen dimensions
     Size screenSize = MediaQuery.of(context).size;
     double gridDimension = screenSize.width < screenSize.height
         ? screenSize.width * 0.8
@@ -61,6 +62,8 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
             children: <Widget>[
               Expanded(
                 child: GridView.builder(
+                  // Widget to build the TicTacToe grid
+                  // (InkWell is used for handling taps on individual cells)
                   padding: const EdgeInsets.all(3.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
@@ -88,6 +91,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
                   },
                 ),
               ),
+              // Display player information and game status
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -107,6 +111,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
                   ],
                 ),
               ),
+              // Display the countdown only when it is active
               if (isCountdownActive)
                 Text(
                   'Next round starts in $countdown seconds',
@@ -116,6 +121,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
           ),
         ),
       ),
+      // Bottom navigation bar with home, settings, and restart buttons
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -124,6 +130,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
             IconButton(
               icon: const Icon(Icons.home),
               onPressed: () {
+                // Navigate to the main screen and remove this screen from the stack
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => MainScreen()),
@@ -134,6 +141,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
+                // Navigate to the options screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => OptionsScreen()),
@@ -155,6 +163,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
     );
   }
 
+  // Handle the tap event on the TicTacToe grid
   void _handleTap(int index) {
     // Allow tapping only when it's the player's turn and the countdown is not active
     if (!isAITurn && !isCountdownActive) {
@@ -189,12 +198,14 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
     }
   }
 
+  // Update the game state with the player's move
   void _makeMove(int index, String player) {
     setState(() {
       board[index] = player;
     });
   }
 
+  // Check the game result (win, lose, or draw)
   void _checkGameResult() {
     if (_checkWinner('X')) {
       statusMessage = '${currentPlayer.name} Wins!';
@@ -212,6 +223,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
     }
   }
 
+  // Check if a player has won
   bool _checkWinner(String player) {
     // Check rows, columns, and diagonals for a winner
     for (int i = 0; i < 3; i++) {
@@ -231,11 +243,13 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
     return false;
   }
 
+  // Check if the game is a draw
   bool _isDraw() {
     // Check if the board is full
     return !board.contains('');
   }
 
+  // Start the countdown timer
   void _startCountdown() {
     countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (countdown > 1) {
@@ -246,22 +260,23 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
         setState(() {
           isCountdownActive = false;
         });
-        timer.cancel(); // stop the countdown timer
+        timer.cancel(); // Stop the countdown timer
       }
     });
   }
 
+  // Start a new round of the game
   void _startNewRound() {
     setState(() {
       board = List.filled(9, '');
       isCountdownActive = true;
       countdown = 3;
-      _startCountdown();
+      _startCountdown(); // Start the countdown for the new round
     });
   }
 
+  // Get the AI's move (simple logic: make a random move)
   int _getAIMove() {
-    // Simple AI logic: make a random move
     List<int> availableMoves = [];
     for (int i = 0; i < board.length; i++) {
       if (board[i] == '') {
@@ -274,6 +289,7 @@ class SinglePlayerGamePageState extends State<SinglePlayerGamePage> {
     return -1; // No available moves (should not happen if the game is checked for a draw before calling this)
   }
 
+  // Save player wins to a CSV file
   void _saveWinsToCSV() async {
     List<List<dynamic>> rows = [];
 
